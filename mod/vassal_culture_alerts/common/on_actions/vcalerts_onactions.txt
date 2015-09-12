@@ -1,0 +1,5 @@
+on_yearly_childhood_pulse = {
+    events = {
+        vcalerts.1
+    }
+}

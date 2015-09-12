@@ -1,0 +1,3 @@
+opinion_vcalerts_alerted = {
+    opinion = 0
+}

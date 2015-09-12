@@ -1,0 +1,134 @@
+namespace = vcalerts
+
+
+character_event = {
+    id = vcalerts.1
+    hide_window = yes
+
+    is_triggered_only = yes  # on_yearly_childhood_pulse
+
+    trigger = {
+
+        employer = {
+            liege = {
+                ai = no
+            }
+
+            # ROOT is ruler or child of ruler
+            OR = {
+                is_father = ROOT
+                is_mother = ROOT
+                character = ROOT
+            }
+        }
+
+        OR = {
+
+            # Child does not have a guardian, and employer is likely to pick a bad one
+            AND = {
+                has_guardian = no
+                employer = {
+                    liege = {
+                        NAND = {
+                            culture = PREV
+                            religion = PREV
+                        }
+                    }
+                }
+            }
+
+            # Child has a guardian of incorrect religion or culture
+            AND = {
+                has_guardian = yes
+                guardian = {
+
+                    # Guardian is not a courtier of the liege (this usually means the player chose someone intentionally)
+                    #employer = {
+                    #    ROOT = {
+                    #        liege = {
+                    #            NOT = {
+                    #                character = PREVPREV
+                    #            }
+                    #        }
+                    #    }
+                    #}
+
+                    NOT = {
+                        reverse_has_opinion_modifier = { who = ROOT  modifier = opinion_vcalerts_alerted }
+                    }
+
+                    # Technically, if the child already has the correct culture, we'd be okay with a
+                    # guardian of the wrong culture as long as the guardian's employer doesn't match
+                    # the guardian. But even typing that in prose gave me the jibblies, so I won't
+                    # be coding that today.
+                    ROOT = {
+                        employer = {
+                            liege = {
+                                NAND = {
+                                    culture = PREVPREVPREV  # player does not match guardian
+                                    religion = PREVPREVPREV
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+
+    }
+
+    immediate = {
+        # Forget about previous guardians
+        #any_opinion_modifier_target = {
+        #    limit = {
+        #        reverse_has_opinion_modifier = {
+        #            who = ROOT
+        #            modifier = opinion_vcalerts_alerted
+        #        }
+        #    }
+        #    reverse_remove_opinion = {
+        #        who = ROOT
+        #        modifier = opinion_vcalerts_alerted
+        #    }
+        #}
+
+        # Remember that we notified about this guardian
+        guardian = {
+            reverse_opinion = { who = ROOT  modifier = opinion_vcalerts_alerted  years = 11 }
+        }
+
+        # Notify player
+        employer = {
+            liege = {
+                character_event = { id = vcalerts.2 }
+            }
+        }
+    }
+}
+
+
+# Player is notified that FROM lacks a suitable guardian
+character_event = {
+    id = vcalerts.2
+    is_triggered_only = yes
+
+    picture = GFX_evt_child_reading
+
+    desc = {
+        text = vcalerts.2.desc.ruler
+        trigger = {
+            FROM = { is_ruler = yes }
+        }
+    }
+    desc = {
+        text = vcalerts.2.desc.nonruler
+        trigger = {
+            FROM = { is_ruler = no }
+        }
+    }
+
+    option = {
+        name = "vcalerts.2.option1"
+    }
+}
